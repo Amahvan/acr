@@ -6,44 +6,69 @@
 <script src="https://js.stripe.com/v3"></script>
 
 <!-- Create a button that your customers click to complete their purchase. Customize the styling to suit your branding. -->
-<center> <button
-  style="background-color:#c5a461;color:#fff;padding:8px 12px;border:0;border-radius:4px;font-size:1em; margin-top: 15px;"
-  id="checkout-button-price_1GtdqvD0n7wFhKyyCj9jQrnV"
-  role="link"
->
-  Place Order Now
-</button></center>
+<center>
+<button
+              style="background-color:#c5a461;color:#fff;padding:8px 12px;border:0;border-radius:4px;font-size:1em; margin-top: 15px;"
+              data-checkout-mode="subscription"
+              data-price-id="price_1GtdqvD0n7wFhKyyCj9jQrnV"
+            >
+              <span style="font-family: arial; font-weight: 600;">Place Order Now</span>
+            </button>
+            
+            <button
+              data-checkout-mode="subscription"
+              data-price-id="plan_GU4MXg0k0Uv1S6"
+            >
+              Donate $20.00 per month
+            </button>
+            
+            </center>
 
-</div>
-<div id="error-message"></div>
+        </div>
+        <div id="error-message"></div>
+      </div>
+    </div>
 
-<script>
-(function() {
-  var stripe = Stripe('pk_live_ERKMw9l0XZs7892IYkOp03Lw');
+    <script>
+      // Replace with your own publishable key: https://dashboard.stripe.com/test/apikeys
+      var PUBLISHABLE_KEY = 'pk_live_ERKMw9l0XZs7892IYkOp03Lw';
+      // Replace with the domain you want your users to be redirected back to after payment
+      var DOMAIN = location.href.replace(/[^/]*$/, '');
 
-  var checkoutButton = document.getElementById('checkout-button-price_1GtdqvD0n7wFhKyyCj9jQrnV');
-  checkoutButton.addEventListener('click', function () {
-    // When the customer clicks on the button, redirect
-    // them to Checkout.
-    stripe.redirectToCheckout({
-      lineItems: [{price: 'price_1GtdqvD0n7wFhKyyCj9jQrnV', quantity: 1}],
-      mode: 'subscription',
-      // Do not rely on the redirect to the successUrl for fulfilling
-      // purchases, customers may not always reach the success_url after
-      // a successful payment.
-      // Instead use one of the strategies described in
-      // https://stripe.com/docs/payments/checkout/fulfillment
-      successUrl: 'https://arizonacattleranch.com/success',
-      cancelUrl: 'https://arizonacattleranch.com/canceled',
-    })
-    .then(function (result) {
-      if (result.error) {
-        // If `redirectToCheckout` fails due to a browser or network
-        // error, display the localized error message to your customer.
-        var displayError = document.getElementById('error-message');
-        displayError.textContent = result.error.message;
+      if (PUBLISHABLE_KEY === 'pk_live_ERKMw9l0XZs7892IYkOp03Lw') {
+        console.log(
+          'Replace the hardcoded publishable key with your own publishable key: https://dashboard.stripe.com/test/apikeys'
+        );
       }
-    });
-  });
-})();
-</script>
+
+      var stripe = Stripe(PUBLISHABLE_KEY);
+
+      // Handle any errors from Checkout
+      var handleResult = function (result) {
+        if (result.error) {
+          var displayError = document.getElementById('error-message');
+          displayError.textContent = result.error.message;
+        }
+      };
+
+      document.querySelectorAll('button').forEach(function (button) {
+        button.addEventListener('click', function (e) {
+          var mode = e.target.dataset.checkoutMode;
+          var priceId = e.target.dataset.priceId;
+          var items = [{ price: priceId, quantity: 1 }];
+
+          // Make the call to Stripe.js to redirect to the checkout page
+          // with the sku or plan ID.
+          stripe
+            .redirectToCheckout({
+              mode: mode,
+              lineItems: items,
+              successUrl:
+                DOMAIN + 'success.html?session_id={CHECKOUT_SESSION_ID}',
+              cancelUrl:
+                DOMAIN + 'canceled.html?session_id={CHECKOUT_SESSION_ID}',
+            })
+            .then(handleResult);
+        });
+      });
+    </script>
