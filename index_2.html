@@ -1,0 +1,49 @@
+<div style="border-radius: 40px;border: 1px solid #ceced0; height: 450px;">
+  <center>
+  <img src="https://lh6.googleusercontent.com/9IgrxHOFTF3gyc1B49ACX2qB-hikZBRL_6e95reBO8N6qRbDk__SywN1_Dz1WUgM5VmOjrB6RrI7D1QxDqijCHdxz1FQQXHoTlpv0q8KbVxRd16G2LU=w1280" style="height: 250px; border-radius: 30px;margin-top:15px;"/>
+  <h2 style="color:#505054; font-family: arial;">Arizona Cattle Ranch Butcher Big Box</h2></center>
+<!-- Load Stripe.js on your website. -->
+<script src="https://js.stripe.com/v3"></script>
+
+<!-- Create a button that your customers click to complete their purchase. Customize the styling to suit your branding. -->
+<center> <button
+  style="background-color:#c5a461;color:#fff;padding:8px 12px;border:0;border-radius:4px;font-size:1em; margin-top: 15px;"
+  id="checkout-button-price_1GtdqvD0n7wFhKyyCj9jQrnV"
+  role="link"
+>
+  Place Order Now
+</button></center>
+
+</div>
+<div id="error-message"></div>
+
+<script>
+(function() {
+  var stripe = Stripe('pk_live_ERKMw9l0XZs7892IYkOp03Lw');
+
+  var checkoutButton = document.getElementById('checkout-button-price_1GtdqvD0n7wFhKyyCj9jQrnV');
+  checkoutButton.addEventListener('click', function () {
+    // When the customer clicks on the button, redirect
+    // them to Checkout.
+    stripe.redirectToCheckout({
+      lineItems: [{price: 'price_1GtdqvD0n7wFhKyyCj9jQrnV', quantity: 1}],
+      mode: 'subscription',
+      // Do not rely on the redirect to the successUrl for fulfilling
+      // purchases, customers may not always reach the success_url after
+      // a successful payment.
+      // Instead use one of the strategies described in
+      // https://stripe.com/docs/payments/checkout/fulfillment
+      successUrl: 'https://arizonacattleranch.com/success',
+      cancelUrl: 'https://arizonacattleranch.com/canceled',
+    })
+    .then(function (result) {
+      if (result.error) {
+        // If `redirectToCheckout` fails due to a browser or network
+        // error, display the localized error message to your customer.
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+})();
+</script>
